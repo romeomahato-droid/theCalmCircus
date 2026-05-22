@@ -107,82 +107,122 @@ function validateField(el) {
   return true;
 }
 
-bookingForm && bookingForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
+bookingForm &&
+bookingForm.addEventListener(
+"submit",
 
-  const fname  = document.getElementById('fname');
-  const femail = document.getElementById('femail');
-  const fphone = document.getElementById('fphone');
-  const fdate  = document.getElementById('fdate');
+async (e)=>{
 
-  const valid = [
-    validateField(fname),
-    validateField(femail),
-    validateField(fphone),
-    validateField(fdate),
-  ].every(Boolean);
+e.preventDefault();
 
-  if (!valid) return;
+const fname =
+document.getElementById('fname');
 
-  // Determine price multiplier
-  const people = document.getElementById('fpeople').value;
-  const numPeople = parseInt(people) || 1;
-  const total = numPeople >= 5 ? '₹4,250+' : '₹' + (4250 * numPeople).toLocaleString('en-IN');
+const femail =
+document.getElementById('femail');
 
-  // Populate payment step
-  document.getElementById('payName').textContent  = fname.value.split(' ')[0];
-  document.getElementById('payDate').textContent   = fdate.value;
-  document.getElementById('payPeople').textContent = people === '1'
-    ? ''
-    : `· ${people} ${people === '5+' ? 'or more' : ''} people · ${total}`;
+const fphone =
+document.getElementById('fphone');
 
-  // Save email for confirmation
-  document.getElementById('confirmDate').textContent  = fdate.value;
-  document.getElementById('confirmEmail').textContent = femail.value;
+const fdate =
+document.getElementById('fdate');
 
-  // Try to save booking to table API
-  try {
-    await fetch('tables/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name:   fname.value,
-        email:  femail.value,
-        phone:  fphone.value,
-        date:   fdate.value,
-        people: people,
-        message: document.getElementById('fmsg').value,
-        status: 'pending_payment'
-      })
-    });
-  } catch (_) { /* silently fail — form still proceeds */ }
 
-  // Transition to payment step
-  bookFormStep.classList.add('hidden');
-  paymentStep.classList.remove('hidden');
-  paymentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+const valid=[
+
+validateField(fname),
+validateField(femail),
+validateField(fphone),
+validateField(fdate)
+
+].every(Boolean);
+
+if(!valid) return;
+
+
+/* SAVE BOOKING */
+
+try{
+
+await fetch(
+'tables/bookings',
+
+{
+method:'POST',
+
+headers:{
+'Content-Type':
+'application/json'
+},
+
+body:JSON.stringify({
+
+name:
+fname.value,
+
+email:
+femail.value,
+
+phone:
+fphone.value,
+
+date:
+fdate.value,
+
+people:
+document.getElementById('fpeople').value,
+
+message:
+document.getElementById('fmsg').value,
+
+status:
+'new_booking'
+
+})
+
 });
 
-// Confirm payment button
-document.getElementById('confirmPayBtn') && document.getElementById('confirmPayBtn').addEventListener('click', async () => {
-  // Mark as paid in table
-  try {
-    const resp = await fetch('tables/bookings?sort=created_at&limit=1');
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.data && data.data.length > 0) {
-        const lastId = data.data[data.data.length - 1].id;
-        await fetch(`tables/bookings/${lastId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'payment_claimed' })
-        });
-      }
-    }
-  } catch (_) { /* silently fail */ }
+}catch(err){}
 
-  paymentStep.classList.add('hidden');
-  confirmStep.classList.remove('hidden');
+
+/* CONFIRMATION STEP */
+
+document.getElementById(
+'confirmDate'
+).textContent =
+fdate.value;
+
+document.getElementById(
+'confirmEmail'
+).textContent =
+femail.value;
+
+
+/* SKIP PAYMENT */
+
+bookFormStep
+.classList.add(
+'hidden'
+);
+
+confirmStep
+.classList.remove(
+'hidden'
+);
+
+confirmStep
+.scrollIntoView({
+
+behavior:'smooth'
+
+});
+
+
+bookingForm.reset();
+
+});
+
+
   confirmStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
