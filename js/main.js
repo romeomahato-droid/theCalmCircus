@@ -116,16 +116,16 @@ async (e)=>{
 e.preventDefault();
 
 const fname =
-document.getElementById('fname');
+document.getElementById("fname");
 
 const femail =
-document.getElementById('femail');
+document.getElementById("femail");
 
 const fphone =
-document.getElementById('fphone');
+document.getElementById("fphone");
 
 const fdate =
-document.getElementById('fdate');
+document.getElementById("fdate");
 
 
 const valid=[
@@ -140,7 +140,7 @@ validateField(fdate)
 if(!valid) return;
 
 
-/* SAVE BOOKING */
+/* SAVE */
 
 try{
 
@@ -157,26 +157,18 @@ headers:{
 
 body:JSON.stringify({
 
-name:
-fname.value,
-
-email:
-femail.value,
-
-phone:
-fphone.value,
-
-date:
-fdate.value,
-
+name:fname.value,
+email:femail.value,
+phone:fphone.value,
+date:fdate.value,
 people:
-document.getElementById('fpeople').value,
+document.getElementById("fpeople").value,
 
 message:
-document.getElementById('fmsg').value,
+document.getElementById("fmsg").value,
 
 status:
-'new_booking'
+"booking"
 
 })
 
@@ -185,38 +177,46 @@ status:
 }catch(err){}
 
 
-/* CONFIRMATION STEP */
+/* HIDE FORM */
 
+bookFormStep.classList.add(
+"hidden"
+);
+
+
+/* SHOW CONFIRMATION */
+
+confirmStep.classList.remove(
+"hidden"
+);
+
+
+/* ONLY IF ELEMENT EXISTS */
+
+const confirmDate =
 document.getElementById(
-'confirmDate'
-).textContent =
+"confirmDate"
+);
+
+const confirmEmail =
+document.getElementById(
+"confirmEmail"
+);
+
+if(confirmDate)
+confirmDate.textContent =
 fdate.value;
 
-document.getElementById(
-'confirmEmail'
-).textContent =
+if(confirmEmail)
+confirmEmail.textContent =
 femail.value;
 
 
-/* SKIP PAYMENT */
+confirmStep.scrollIntoView({
 
-bookFormStep
-.classList.add(
-'hidden'
-);
-
-confirmStep
-.classList.remove(
-'hidden'
-);
-
-confirmStep
-.scrollIntoView({
-
-behavior:'smooth'
+behavior:"smooth"
 
 });
-
 
 bookingForm.reset();
 
